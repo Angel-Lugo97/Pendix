@@ -2,6 +2,11 @@ package com.mx.tecdesoftware.Pendix.web.controller;
 
 import com.mx.tecdesoftware.Pendix.domain.Project;
 import com.mx.tecdesoftware.Pendix.domain.service.ProjectService;
+import com.mx.tecdesoftware.Pendix.web.dto.project.ProjectRequest;
+import com.mx.tecdesoftware.Pendix.web.dto.project.ProjectResponse;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -17,6 +22,10 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/projects")
+@Tag(
+        name = "Projects",
+        description = "Administración de proyectos registrados en Pendix."
+)
 public class ProjectController {
 
     private final ProjectService projectService;
@@ -26,43 +35,85 @@ public class ProjectController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Project>> getAll() {
-        return ResponseEntity.ok(projectService.getAll());
+    @Operation(
+            summary = "Consultar todos los proyectos",
+            description = "Devuelve los proyectos registrados junto con sus tareas."
+    )
+    public ResponseEntity<List<ProjectResponse>> getAll() {
+        List<ProjectResponse> projects = projectService.getAll()
+                .stream()
+                .map(ProjectResponse::from)
+                .toList();
+
+        return ResponseEntity.ok(projects);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Project> getById(
+    @Operation(
+            summary = "Consultar un proyecto por ID",
+            description = "Busca un proyecto específico utilizando su identificador."
+    )
+    public ResponseEntity<ProjectResponse> getById(
+            @Parameter(
+                    description = "Identificador del proyecto",
+                    example = "1"
+            )
             @PathVariable Integer id
     ) {
         return projectService.getById(id)
+                .map(ProjectResponse::from)
                 .map(ResponseEntity::ok)
-                .orElseGet(
-                        () -> ResponseEntity.notFound().build()
-                );
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @GetMapping(params = "ownerId")
-    public ResponseEntity<List<Project>> getByOwnerId(
+    @Operation(
+            summary = "Consultar proyectos por propietario",
+            description = "Devuelve los proyectos pertenecientes a un usuario."
+    )
+    public ResponseEntity<List<ProjectResponse>> getByOwnerId(
+            @Parameter(
+                    description = "Identificador del usuario propietario",
+                    example = "1"
+            )
             @RequestParam Integer ownerId
     ) {
-        return ResponseEntity.ok(
+        List<ProjectResponse> projects =
                 projectService.getByOwnerId(ownerId)
-        );
+                        .stream()
+                        .map(ProjectResponse::from)
+                        .toList();
+
+        return ResponseEntity.ok(projects);
     }
 
     @PostMapping
-    public ResponseEntity<Project> save(
-            @RequestBody Project project
+    @Operation(
+            summary = "Registrar un proyecto",
+            description = "Crea un proyecto nuevo. El ID y la lista de tareas son generados por el sistema."
+    )
+    public ResponseEntity<ProjectResponse> save(
+            @RequestBody ProjectRequest request
     ) {
-        Project savedProject = projectService.save(project);
+        Project savedProject = projectService.save(
+                request.toDomain()
+        );
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(savedProject);
+                .body(ProjectResponse.from(savedProject));
     }
 
     @DeleteMapping("/{id}")
+    @Operation(
+            summary = "Eliminar un proyecto",
+            description = "Elimina un proyecto utilizando su identificador."
+    )
     public ResponseEntity<Void> delete(
+            @Parameter(
+                    description = "Identificador del proyecto",
+                    example = "1"
+            )
             @PathVariable Integer id
     ) {
         boolean deleted = projectService.delete(id);
@@ -73,5 +124,4 @@ public class ProjectController {
 
         return ResponseEntity.noContent().build();
     }
-
 }

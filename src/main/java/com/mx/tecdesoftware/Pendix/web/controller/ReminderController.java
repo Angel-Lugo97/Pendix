@@ -1,7 +1,11 @@
 package com.mx.tecdesoftware.Pendix.web.controller;
 
-import com.mx.tecdesoftware.Pendix.domain.Reminder;
 import com.mx.tecdesoftware.Pendix.domain.service.ReminderService;
+import com.mx.tecdesoftware.Pendix.web.dto.reminder.ReminderRequest;
+import com.mx.tecdesoftware.Pendix.web.dto.reminder.ReminderResponse;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -17,6 +21,10 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/reminders")
+@Tag(
+        name = "Reminders",
+        description = "Administración de recordatorios asociados con tareas."
+)
 public class ReminderController {
 
     private final ReminderService reminderService;
@@ -26,35 +34,69 @@ public class ReminderController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Reminder>> getAll() {
-        return ResponseEntity.ok(reminderService.getAll());
+    @Operation(
+            summary = "Consultar todos los recordatorios",
+            description = "Devuelve todos los recordatorios registrados."
+    )
+    public ResponseEntity<List<ReminderResponse>> getAll() {
+        List<ReminderResponse> reminders =
+                reminderService.getAll()
+                        .stream()
+                        .map(ReminderResponse::from)
+                        .toList();
+
+        return ResponseEntity.ok(reminders);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Reminder> getById(
+    @Operation(
+            summary = "Consultar un recordatorio por ID",
+            description = "Busca un recordatorio utilizando su identificador."
+    )
+    public ResponseEntity<ReminderResponse> getById(
+            @Parameter(
+                    description = "Identificador del recordatorio",
+                    example = "1"
+            )
             @PathVariable Integer id
     ) {
         return reminderService.getById(id)
+                .map(ReminderResponse::from)
                 .map(ResponseEntity::ok)
-                .orElseGet(
-                        () -> ResponseEntity.notFound().build()
-                );
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @GetMapping(params = "taskId")
-    public ResponseEntity<List<Reminder>> getByTaskId(
+    @Operation(
+            summary = "Consultar recordatorios por tarea",
+            description = "Devuelve los recordatorios pertenecientes a una tarea."
+    )
+    public ResponseEntity<List<ReminderResponse>> getByTaskId(
+            @Parameter(
+                    description = "Identificador de la tarea",
+                    example = "1"
+            )
             @RequestParam Integer taskId
     ) {
-        return ResponseEntity.ok(
+        List<ReminderResponse> reminders =
                 reminderService.getByTaskId(taskId)
-        );
+                        .stream()
+                        .map(ReminderResponse::from)
+                        .toList();
+
+        return ResponseEntity.ok(reminders);
     }
 
     @PostMapping
-    public ResponseEntity<Reminder> save(
-            @RequestBody Reminder reminder
+    @Operation(
+            summary = "Registrar un recordatorio",
+            description = "Crea un recordatorio nuevo para una tarea existente."
+    )
+    public ResponseEntity<ReminderResponse> save(
+            @RequestBody ReminderRequest request
     ) {
-        return reminderService.save(reminder)
+        return reminderService.save(request.toDomain())
+                .map(ReminderResponse::from)
                 .map(savedReminder -> ResponseEntity
                         .status(HttpStatus.CREATED)
                         .body(savedReminder))
@@ -64,7 +106,15 @@ public class ReminderController {
     }
 
     @DeleteMapping("/{id}")
+    @Operation(
+            summary = "Eliminar un recordatorio",
+            description = "Elimina un recordatorio utilizando su identificador."
+    )
     public ResponseEntity<Void> delete(
+            @Parameter(
+                    description = "Identificador del recordatorio",
+                    example = "1"
+            )
             @PathVariable Integer id
     ) {
         boolean deleted = reminderService.delete(id);

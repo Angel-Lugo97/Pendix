@@ -8,7 +8,10 @@ import org.mapstruct.Mapping;
 
 import java.util.List;
 
-@Mapper(componentModel = "spring")
+@Mapper(
+        componentModel = "spring",
+        uses = ReminderMapper.class
+)
 public interface TaskMapper {
 
     @Mapping(source = "idTarea", target = "taskId")
@@ -23,6 +26,7 @@ public interface TaskMapper {
     @Mapping(source = "fechaLimite", target = "dueDate")
     @Mapping(source = "prioridad", target = "priority")
     @Mapping(source = "estado", target = "state")
+    @Mapping(source = "recordatorios", target = "reminders")
     Task toTask(Tarea tarea);
 
     List<Task> toTasks(List<Tarea> tareas);

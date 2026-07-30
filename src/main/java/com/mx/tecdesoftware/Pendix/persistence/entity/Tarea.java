@@ -3,6 +3,7 @@ package com.mx.tecdesoftware.Pendix.persistence.entity;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "tareas")
@@ -49,6 +50,13 @@ public class Tarea {
             updatable = false
     )
     private Usuario usuarioAsignado;
+
+    @OneToMany(
+            mappedBy = "tarea",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
+    private List<Recordatorio> recordatorios;
 
     public Integer getIdTarea() {
         return idTarea;
@@ -136,5 +144,13 @@ public class Tarea {
 
     public void setUsuarioAsignado(Usuario usuarioAsignado) {
         this.usuarioAsignado = usuarioAsignado;
+    }
+
+    public List<Recordatorio> getRecordatorios() {
+        return recordatorios;
+    }
+
+    public void setRecordatorios(List<Recordatorio> recordatorios) {
+        this.recordatorios = recordatorios;
     }
 }

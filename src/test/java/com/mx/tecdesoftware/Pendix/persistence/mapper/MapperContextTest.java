@@ -19,10 +19,14 @@ class MapperContextTest {
     @Autowired
     private TaskMapper taskMapper;
 
+    @Autowired
+    private ReminderMapper reminderMapper;
+
     @Test
     void shouldLoadMappersAsSpringBeans() {
         assertNotNull(projectMapper);
         assertNotNull(taskMapper);
+        assertNotNull(reminderMapper);
     }
 
     @Configuration

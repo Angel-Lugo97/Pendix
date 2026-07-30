@@ -1,6 +1,7 @@
 package com.mx.tecdesoftware.Pendix.domain;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 public class Task {
 
@@ -13,6 +14,7 @@ public class Task {
     private LocalDateTime dueDate;
     private String priority;
     private String state;
+    private List<Reminder> reminders;
 
     public Integer getTaskId() {
         return taskId;
@@ -84,5 +86,13 @@ public class Task {
 
     public void setState(String state) {
         this.state = state;
+    }
+
+    public List<Reminder> getReminders() {
+        return reminders;
+    }
+
+    public void setReminders(List<Reminder> reminders) {
+        this.reminders = reminders;
     }
 }

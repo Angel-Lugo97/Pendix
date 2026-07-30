@@ -19,6 +19,9 @@ public class Usuario {
     @Column(nullable = false, unique = true)
     private String correo;
 
+    @Column(nullable = false, length = 60)
+    private String contrasena;
+
     private Boolean estado;
 
     @OneToMany(mappedBy = "usuarioPropietario")
@@ -49,6 +52,14 @@ public class Usuario {
 
     public void setCorreo(String correo) {
         this.correo = correo;
+    }
+
+    public String getContrasena() {
+        return contrasena;
+    }
+
+    public void setContrasena(String contrasena) {
+        this.contrasena = contrasena;
     }
 
     public Boolean getEstado() {

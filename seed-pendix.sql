@@ -8,13 +8,13 @@ RESTART IDENTITY CASCADE;
 -- USUARIOS
 -- =====================================================
 
-INSERT INTO usuarios (nombre, correo, estado)
+INSERT INTO usuarios (nombre, correo, contrasena, estado)
 VALUES
-    ('Ángel Lugo', 'angel.lugo@pendix.com', true),
-    ('María Hernández', 'maria.hernandez@pendix.com', true),
-    ('Carlos Gaxiola', 'carlos.gaxiola@pendix.com', true),
-    ('Laura Martínez', 'laura.martinez@pendix.com', true),
-    ('Roberto Díaz', 'roberto.diaz@pendix.com', false);
+    ('Ángel Lugo', 'angel.lugo@pendix.com', '$2a$10$nkNvamAqeHUoDdonizTvyOA7byMnC5F/DXXjA.nzCvGiD1q5Lprhy', true),
+    ('María Hernández', 'maria.hernandez@pendix.com', '$2a$10$nkNvamAqeHUoDdonizTvyOA7byMnC5F/DXXjA.nzCvGiD1q5Lprhy', true),
+    ('Carlos Gaxiola', 'carlos.gaxiola@pendix.com', '$2a$10$nkNvamAqeHUoDdonizTvyOA7byMnC5F/DXXjA.nzCvGiD1q5Lprhy', true),
+    ('Laura Martínez', 'laura.martinez@pendix.com', '$2a$10$nkNvamAqeHUoDdonizTvyOA7byMnC5F/DXXjA.nzCvGiD1q5Lprhy', true),
+    ('Roberto Díaz', 'roberto.diaz@pendix.com', '$2a$10$nkNvamAqeHUoDdonizTvyOA7byMnC5F/DXXjA.nzCvGiD1q5Lprhy', false);
 
 -- =====================================================
 -- PROYECTOS

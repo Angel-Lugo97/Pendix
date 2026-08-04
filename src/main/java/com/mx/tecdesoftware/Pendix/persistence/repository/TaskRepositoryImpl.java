@@ -1,8 +1,11 @@
 package com.mx.tecdesoftware.Pendix.persistence.repository;
 
 import com.mx.tecdesoftware.Pendix.domain.Task;
+import com.mx.tecdesoftware.Pendix.domain.exception.ResourceNotFoundException;
 import com.mx.tecdesoftware.Pendix.domain.repository.TaskRepository;
+import com.mx.tecdesoftware.Pendix.persistence.crud.ProyectoCrudRepository;
 import com.mx.tecdesoftware.Pendix.persistence.crud.TareaCrudRepository;
+import com.mx.tecdesoftware.Pendix.persistence.entity.Proyecto;
 import com.mx.tecdesoftware.Pendix.persistence.entity.Tarea;
 import com.mx.tecdesoftware.Pendix.persistence.mapper.TaskMapper;
 import org.springframework.stereotype.Repository;
@@ -17,24 +20,23 @@ import java.util.Optional;
 public class TaskRepositoryImpl implements TaskRepository {
 
     private final TareaCrudRepository tareaCrudRepository;
+    private final ProyectoCrudRepository proyectoCrudRepository;
     private final TaskMapper taskMapper;
 
     public TaskRepositoryImpl(
             TareaCrudRepository tareaCrudRepository,
+            ProyectoCrudRepository proyectoCrudRepository,
             TaskMapper taskMapper
     ) {
         this.tareaCrudRepository = tareaCrudRepository;
+        this.proyectoCrudRepository = proyectoCrudRepository;
         this.taskMapper = taskMapper;
     }
 
     @Override
     public List<Task> getAll() {
         List<Tarea> tareas = new ArrayList<>();
-
-        tareaCrudRepository
-                .findAll()
-                .forEach(tareas::add);
-
+        tareaCrudRepository.findAll().forEach(tareas::add);
         return taskMapper.toTasks(tareas);
     }
 
@@ -47,19 +49,26 @@ public class TaskRepositoryImpl implements TaskRepository {
 
     @Override
     public List<Task> getByProjectId(Integer projectId) {
-        List<Tarea> tareas =
-                tareaCrudRepository.findByIdProyecto(projectId);
-
-        return taskMapper.toTasks(tareas);
+        return taskMapper.toTasks(
+                tareaCrudRepository.findByIdProyecto(projectId)
+        );
     }
 
     @Override
     public Task save(Task task) {
-        Tarea tarea = taskMapper.toEntity(task);
-        Tarea tareaGuardada =
-                tareaCrudRepository.save(tarea);
+        Proyecto proyecto = proyectoCrudRepository
+                .findById(task.getProjectId())
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "No existe el proyecto con ID " + task.getProjectId()
+                ));
 
-        return taskMapper.toTask(tareaGuardada);
+        Tarea tarea = taskMapper.toEntity(task);
+        tarea.setProyecto(proyecto);
+
+        Tarea savedEntity = tareaCrudRepository.save(tarea);
+        Task savedTask = taskMapper.toTask(savedEntity);
+        savedTask.setProjectId(task.getProjectId());
+        return savedTask;
     }
 
     @Override

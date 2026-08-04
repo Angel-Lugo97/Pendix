@@ -14,7 +14,11 @@ public class Tarea {
     @Column(name = "id_tarea")
     private Integer idTarea;
 
-    @Column(name = "id_proyecto", nullable = false)
+    @Column(
+            name = "id_proyecto",
+            insertable = false,
+            updatable = false
+    )
     private Integer idProyecto;
 
     @Column(name = "id_usuario_asignado")
@@ -35,12 +39,8 @@ public class Tarea {
 
     private String estado;
 
-    @ManyToOne
-    @JoinColumn(
-            name = "id_proyecto",
-            insertable = false,
-            updatable = false
-    )
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "id_proyecto", nullable = false)
     private Proyecto proyecto;
 
     @ManyToOne

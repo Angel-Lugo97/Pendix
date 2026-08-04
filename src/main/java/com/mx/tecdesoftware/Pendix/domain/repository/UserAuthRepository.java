@@ -7,4 +7,6 @@ import java.util.Optional;
 public interface UserAuthRepository {
 
     Optional<UserCredentials> findByEmail(String email);
+
+    boolean existsById(Integer userId);
 }

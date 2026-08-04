@@ -30,4 +30,8 @@ public class UserAuthRepositoryImpl implements UserAuthRepository {
                         Boolean.TRUE.equals(usuario.getEstado())
                 ));
     }
+    @Override
+    public boolean existsById(Integer userId) {
+        return userId != null && usuarioCrudRepository.existsById(userId);
+    }
 }

@@ -4,6 +4,7 @@ import com.mx.tecdesoftware.Pendix.domain.Project;
 import com.mx.tecdesoftware.Pendix.domain.repository.ProjectRepository;
 import com.mx.tecdesoftware.Pendix.persistence.crud.ProyectoCrudRepository;
 import com.mx.tecdesoftware.Pendix.persistence.entity.Proyecto;
+import com.mx.tecdesoftware.Pendix.persistence.entity.Tarea;
 import com.mx.tecdesoftware.Pendix.persistence.mapper.ProjectMapper;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,11 +31,7 @@ public class ProjectRepositoryImpl implements ProjectRepository {
     @Override
     public List<Project> getAll() {
         List<Proyecto> proyectos = new ArrayList<>();
-
-        proyectoCrudRepository
-                .findAll()
-                .forEach(proyectos::add);
-
+        proyectoCrudRepository.findAll().forEach(proyectos::add);
         return projectMapper.toProjects(proyectos);
     }
 
@@ -47,19 +44,31 @@ public class ProjectRepositoryImpl implements ProjectRepository {
 
     @Override
     public List<Project> getByOwnerId(Integer ownerId) {
-        List<Proyecto> proyectos =
-                proyectoCrudRepository.findByIdUsuarioPropietario(ownerId);
-
-        return projectMapper.toProjects(proyectos);
+        return projectMapper.toProjects(
+                proyectoCrudRepository.findByIdUsuarioPropietario(ownerId)
+        );
     }
 
     @Override
     public Project save(Project project) {
         Proyecto proyecto = projectMapper.toEntity(project);
-        Proyecto proyectoGuardado =
-                proyectoCrudRepository.save(proyecto);
 
-        return projectMapper.toProject(proyectoGuardado);
+        if (proyecto.getTareas() != null) {
+            for (Tarea tarea : proyecto.getTareas()) {
+                tarea.setProyecto(proyecto);
+            }
+        }
+
+        Proyecto savedEntity = proyectoCrudRepository.save(proyecto);
+        Project savedProject = projectMapper.toProject(savedEntity);
+
+        if (savedProject.getTasks() != null) {
+            savedProject.getTasks().forEach(
+                    task -> task.setProjectId(savedProject.getProjectId())
+            );
+        }
+
+        return savedProject;
     }
 
     @Override

@@ -1,4 +1,4 @@
-package com.mx.tecdesoftware.Pendix.web.dto.task;
+package com.mx.tecdesoftware.Pendix.web.dto.project;
 
 import com.mx.tecdesoftware.Pendix.domain.Task;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -9,16 +9,12 @@ import jakarta.validation.constraints.Size;
 
 import java.time.LocalDateTime;
 
-@Schema(name = "TaskRequest", description = "Datos necesarios para registrar una tarea.")
-public record TaskRequest(
-        @NotNull(message = "projectId es obligatorio")
-        @Positive(message = "projectId debe ser mayor que cero")
-        Integer projectId,
-
+@Schema(description = "Tarea que será persistida junto con el proyecto maestro")
+public record ProjectTaskRequest(
         @Positive(message = "assignedUserId debe ser mayor que cero")
         Integer assignedUserId,
 
-        @NotBlank(message = "El título es obligatorio")
+        @NotBlank(message = "El título de la tarea es obligatorio")
         @Size(max = 255, message = "El título no puede superar 255 caracteres")
         String title,
 
@@ -40,7 +36,6 @@ public record TaskRequest(
 
     public Task toDomain() {
         Task task = new Task();
-        task.setProjectId(projectId);
         task.setAssignedUserId(assignedUserId);
         task.setTitle(title);
         task.setDescription(description);

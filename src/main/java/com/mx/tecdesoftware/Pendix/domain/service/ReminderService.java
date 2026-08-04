@@ -1,6 +1,7 @@
 package com.mx.tecdesoftware.Pendix.domain.service;
 
 import com.mx.tecdesoftware.Pendix.domain.Reminder;
+import com.mx.tecdesoftware.Pendix.domain.exception.ResourceNotFoundException;
 import com.mx.tecdesoftware.Pendix.domain.repository.ReminderRepository;
 import com.mx.tecdesoftware.Pendix.domain.repository.TaskRepository;
 import org.springframework.stereotype.Service;
@@ -34,26 +35,22 @@ public class ReminderService {
         return reminderRepository.getByTaskId(taskId);
     }
 
-    public Optional<Reminder> save(Reminder reminder) {
-        if (reminder == null
-                || reminder.getTaskId() == null
-                || reminder.getReminderDate() == null
-                || reminder.getMessage() == null
-                || reminder.getMessage().isBlank()
-                || taskRepository.getById(reminder.getTaskId()).isEmpty()) {
-            return Optional.empty();
+    public Reminder save(Reminder reminder) {
+        if (taskRepository.getById(reminder.getTaskId()).isEmpty()) {
+            throw new ResourceNotFoundException(
+                    "No existe la tarea con ID " + reminder.getTaskId()
+            );
         }
 
         if (reminder.getSent() == null) {
             reminder.setSent(false);
         }
 
-        return Optional.of(reminderRepository.save(reminder));
+        return reminderRepository.save(reminder);
     }
 
     public boolean delete(Integer reminderId) {
-        Optional<Reminder> reminder =
-                reminderRepository.getById(reminderId);
+        Optional<Reminder> reminder = reminderRepository.getById(reminderId);
 
         if (reminder.isEmpty()) {
             return false;
